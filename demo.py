@@ -7,9 +7,9 @@ import asyncio
 # 获得每段视频的url
 
 
-def get_url_list():
+def get_url_list(prefix_url):
 
-    prefix_url = "https://youku.com-youku.net/20180626/14085_604c6726/1000k/hls/"
+    # prefix_url = "https://youku.com-youku.net/20180626/14085_604c6726/1000k/hls/"
     with open("./index.m3u8", "r")as f:
         content = f.read()
         # print(content)
@@ -20,7 +20,7 @@ def get_url_list():
             if ".ts" in i:
 
                 url_list.append(prefix_url + i)
-        print(url_list)
+        # print(url_list)
     # print(len(url_list))
     return url_list
 # 根据url下载视频并保存
@@ -57,7 +57,7 @@ async def main(loop, url):
     async with aiohttp.ClientSession() as session:
         # 建立会话 session
         tasks = [loop.create_task(job(session, url[_]))
-                 for _ in range(len(get_url_list()))]
+                 for _ in range(len(get_url_list(prefix_url)))]
         # 建立所有任务
         finshed, unfinshed = await asyncio.wait(tasks)
         # 触发await，等待任务完成
@@ -67,12 +67,12 @@ async def main(loop, url):
 # 视频合并
 
 
-def join_video(x, y):
+def join_video(prefix,x, y):
     filedir = r"video"
     new_file = "%s\out.ts" % filedir
     f = open(new_file, "wb")
     for i in range(x, y):
-        filepath = "%s\98dd3b961ba%03d.ts" % (filedir, i)
+        filepath = "%s\%s%03d.ts" % (filedir,prefix, i)
         for line in open(filepath, "rb"):
             f.write(line)
         f.flush()
@@ -80,14 +80,16 @@ def join_video(x, y):
 
 
 if __name__ == "__main__":
+    prefix_url="https://youku.com-youku.net/20180626/14086_6b412285/1000k/hls/"
     # 单独下载
-    # url_list = ["https://youku.com-youku.net/20180626/14085_604c6726/1000k/hls/98dd3b961ba086.ts"]
+    # url_list = [prefix_url+"fba3dbf4fcf081.ts"]
     # download(url_list)
 
     # 批量下载
     # if not os.path.exists("video"):
     #     os.makedirs("video")
+    
     # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(main(loop, get_url_list()))
+    # loop.run_until_complete(main(loop, get_url_list(prefix_url)))
 
-    join_video(0,836)
+    join_video("fba3dbf4fcf",0,788)
